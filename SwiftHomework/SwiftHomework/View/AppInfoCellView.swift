@@ -6,14 +6,13 @@
 //
 
 import SwiftUI
-import SDWebImageSwiftUI
-import Lottie
 import Combine
 struct AppInfoCellView: View {
     @State var isLike:Bool = false
     var appDetailData:AppDetail!
-    @State var cacheImage: UIImage = UIImage()
+    @State var cacheImage: UIImage?
     @State var cancellable = Set<AnyCancellable>()
+    
     let queue = DispatchQueue.init(label: "iamge-queue")
     var body: some View {
         ZStack{
@@ -21,20 +20,29 @@ struct AppInfoCellView: View {
                 Spacer().frame(width: 8)
                 VStack{
                     HStack{
-                        Image(uiImage: cacheImage)
-                            .frame(width: 60, height: 60, alignment: .center)
-                            .cornerRadius(8)
-                            .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 4))
-                            .task {
-                                DispatchQueue.global().async {
-                                    JXNetworkService.shared.loadImageWithUrl(urlString: appDetailData.artworkUrl60)
-                                        .receive(on: queue).sink { response in
-                                            
-                                        } receiveValue: { image in
-                                            cacheImage = image
-                                        }.store(in: &cancellable)
+                        if cacheImage == nil {
+                            ProgressView()
+                                .frame(width: 60, height: 60, alignment: .center)
+                                .cornerRadius(8)
+                                .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 4))
+                                .task {
+                                    DispatchQueue.global().async {
+                                        JXNetworkService.shared.loadImageWithUrl(urlString: appDetailData.artworkUrl60)
+                                            .receive(on: queue).sink { response in
+                                                
+                                            } receiveValue: { image in
+                                                cacheImage = image
+                                            }.store(in: &cancellable)
+                                    }
                                 }
-                            }
+                        }else{
+                            Image(uiImage: cacheImage!)
+                                .frame(width: 60, height: 60, alignment: .center)
+                                .cornerRadius(8)
+                                .padding(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 4))
+                                
+                        }
+                        
                         VStack(alignment: .leading) {
                             Text(appDetailData.trackName)
                                 .bold()

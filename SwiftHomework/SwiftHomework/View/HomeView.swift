@@ -16,23 +16,44 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView{
-            if vm.allAppList == nil{
-                ProgressView()
-            }else{
-                ZStack {
-                    ScrollView(.vertical){
+            ZStack {
+                RefreshableScrollView.init { done in
+                    done()
+                } onMoreRefresh: {done in
+                    done()
+                } topProgress: { state in
+                    if state == .waiting {
+                           Text("Pull me down...")  
+                    } else if state == .primedRefresh {
+                           Text("Now release!")
+                       } else {
+                           Text("Working...")
+                       }
+                } bottomProgress: { state in
+                    if state == .waiting {
+                           Text("Pull me down...")
+                    } else if state == .primedRefresh {
+                           Text("Now release!")
+                       } else {
+                           Text("Working...")
+                       }
+                } content: {
+                    VStack{
+                        if let _ = vm.allAppList {
                             ForEach(vm.allAppList!.indices , id: \.self){ i in
                                 if(i<vm.currentCount){
                                     AppInfoCellView(appDetailData: vm.allAppList![i])
                                 }
                             }
+                        }
                     }
-                    .background(Color.init(white: 0.95))
-                    
-                    
-                }.navigationTitle("App")
-            }
-        }
+                }.background(Color.init(white: 0.95))
+                if(vm.allAppList == nil){
+                    ProgressView().fixedSize()
+                }
+                
+            }.navigationTitle("App").background(Color.init(white: 0.95))
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
