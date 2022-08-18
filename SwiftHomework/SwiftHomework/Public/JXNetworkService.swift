@@ -49,7 +49,7 @@ class JXNetworkService {
     }
     
     func getChatAppList() -> AnyPublisher<AppInfo,Error> {
-        return self.urlRequest(urlString: "https://itunes.apple.com/search?entity=software&limit=5&term=social")
+        return self.urlRequest(urlString: "https://itunes.apple.com/search?entity=software&limit=50&term=social")
     }
     
     func urlRequest<T:Decodable>(urlString:String) -> AnyPublisher<T,Error> {

@@ -18,37 +18,37 @@ struct HomeView: View {
         NavigationView{
             ZStack {
                 RefreshableScrollView.init { done in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                       done()
                     }
                 } onLoadMore: { done in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                      done()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                        vm.loadMore()
+                        done()
                     }
                 } refreshProgress: { state in
                     RefreshActivityIndicator(isAnimating: state == .topLoading) {
-                             $0.hidesWhenStopped = false
-                         }
+                        $0.hidesWhenStopped = false
+                    }
                 } loadMoreProgress: { state in
-                    RefreshActivityIndicator(isAnimating: state == .topLoading) {
-                             $0.hidesWhenStopped = false
-                         }
+                    if(vm.isNoMoreData){
+                        Text("No more data.")
+                    }else{
+                        RefreshActivityIndicator(isAnimating: state == .topLoading) {
+                            $0.hidesWhenStopped = false
+                        }
+                    }
                 } content: {
                     VStack{
-                        if let _ = vm.allAppList {
-                            ForEach(vm.allAppList!.indices , id: \.self){ i in
-                                if(i<vm.currentCount){
-                                    AppInfoCellView(appDetailData: vm.allAppList![i])
-                                }
-                            }
+                        ForEach(vm.currentList.indices , id: \.self){ i in
+                            AppInfoCellView(appDetailData: vm.currentList[i])
                         }
                     }
                 }.background(Color.init(white: 0.95))
-            
                 if(vm.allAppList == nil){
                     ProgressView().fixedSize()
                 }
-                }
+            }
         .navigationTitle("App").background(Color.init(white: 0.95))
         }.navigationViewStyle(StackNavigationViewStyle())
     }

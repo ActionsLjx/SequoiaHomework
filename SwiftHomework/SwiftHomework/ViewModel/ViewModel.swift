@@ -11,30 +11,46 @@ import UIKit
 
 class ViewModel: ObservableObject {
     //请求的总数据
+    @Published var currentList: AppList = []
     @Published var allAppList: AppList?
-    @Published var totalCount:Int = 0
+    @Published var isNoMoreData:Bool = false
     //已经展示的
-    @Published var currentCount:Int = 0
     let service = JXNetworkService.shared;
-
+    var totalCount = 0
     var cancellable = Set<AnyCancellable>()
-    var a = [1,2,3,4,5]
+    
     init() {
+        refreshData()
+    }
+    
+    func refreshData() {
         service.getChatAppList()
             .receive(on: RunLoop.main)
             .sink { completion in
                 print(completion)
             } receiveValue: { [weak self] data in
+                self?.currentList = []
                 self?.allAppList = data.results;
-                self?.totalCount = data.resultCount;
-                self?.currentCount = 10;
+                self?.totalCount = data.results.count;
+                _ = self?.loadMore()
             }
             .store(in: &cancellable)
     }
     
-    func getNetImage(urlString:String){
-       
-
-
+    //返回false 为无更多数据
+    func loadMore(){
+        guard let appInfoList = self.allAppList else { return }
+        var nextCount = self.currentList.count + 2;
+        nextCount = nextCount > totalCount ? totalCount : nextCount;
+        if(nextCount == self.currentList.count){
+            isNoMoreData = true
+            return
+        }
+        var a = currentList;
+        for i in self.currentList.count ... (nextCount - 1) {
+            a.append(appInfoList[i])
+        }
+        currentList = a;
+        isNoMoreData = false
     }
 }

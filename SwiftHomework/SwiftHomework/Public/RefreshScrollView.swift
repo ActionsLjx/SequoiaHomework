@@ -69,18 +69,19 @@ public enum RefreshState {
 // ViewBuilder for the custom progress View, that may render itself
 // based on the current RefreshState.
 public typealias RefreshProgressBuilder<Progress: View> = (RefreshState) -> Progress
+public typealias LoadMoreProgressBuilder<MoreProgress: View> = (RefreshState) -> MoreProgress
 
 // Default color of the rectangle behind the progress spinner
 public let defaultLoadingViewBackgroundColor = Color(UIColor.clear)
 
-public struct RefreshableScrollView<Progress, Content>: View where Progress: View, Content: View {
+public struct RefreshableScrollView<Progress,MoreProgress, Content>: View where Progress: View,MoreProgress: View, Content: View {
   let showsIndicators: Bool // if the ScrollView should show indicators
   let loadingViewBackgroundColor: Color
   let threshold: CGFloat // what height do you have to pull down to trigger the refresh
   let onRefresh: OnRefresh // the refreshing action
   let onLoadMore:OnRefresh //加载更多回调
   let refreshProgress: RefreshProgressBuilder<Progress> // custom progress view
-  let loadMoreProgress: RefreshProgressBuilder<Progress> //底部加载更多
+  let loadMoreProgress: LoadMoreProgressBuilder<MoreProgress> //底部加载更多
   let content: () -> Content // the ScrollView content
   @State private var offset: CGFloat = 0
   @State private var state = RefreshState.waiting // the current state
@@ -97,7 +98,7 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
               onRefresh: @escaping OnRefresh,
               onLoadMore: @escaping OnRefresh,
               @ViewBuilder refreshProgress: @escaping RefreshProgressBuilder<Progress>,
-              @ViewBuilder loadMoreProgress: @escaping RefreshProgressBuilder<Progress>,
+              @ViewBuilder loadMoreProgress: @escaping LoadMoreProgressBuilder<MoreProgress>,
               @ViewBuilder content: @escaping () -> Content) {
     self.showsIndicators = showsIndicators
     self.loadingViewBackgroundColor = loadingViewBackgroundColor
@@ -199,7 +200,7 @@ public struct RefreshableScrollView<Progress, Content>: View where Progress: Vie
 
 // Extension that uses default RefreshActivityIndicator so that you don't have to
 // specify it every time.
-public extension RefreshableScrollView where Progress == RefreshActivityIndicator {
+public extension RefreshableScrollView where Progress == RefreshActivityIndicator,MoreProgress == RefreshActivityIndicator {
     init(showsIndicators: Bool = true,
          loadingViewBackgroundColor: Color = defaultLoadingViewBackgroundColor,
          threshold: CGFloat = defaultRefreshThreshold,
@@ -256,7 +257,7 @@ public extension RefreshableScrollView {
          threshold: CGFloat = defaultRefreshThreshold,
          action: @escaping @Sendable () async -> Void,
          @ViewBuilder refreshProgress: @escaping RefreshProgressBuilder<Progress>,
-         @ViewBuilder loadMoreProgress: @escaping RefreshProgressBuilder<Progress>,
+         @ViewBuilder loadMoreProgress: @escaping LoadMoreProgressBuilder<MoreProgress>,
          @ViewBuilder content: @escaping () -> Content) {
         self.init(showsIndicators: showsIndicators,
                   loadingViewBackgroundColor: loadingViewBackgroundColor,
