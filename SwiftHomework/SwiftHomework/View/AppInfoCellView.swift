@@ -13,7 +13,6 @@ struct AppInfoCellView: View {
     @State var cacheImage: UIImage?
     @State var cancellable = Set<AnyCancellable>()
     
-    let queue = DispatchQueue.init(label: "iamge-queue")
     var body: some View {
         ZStack{
             HStack{
@@ -28,7 +27,7 @@ struct AppInfoCellView: View {
                                 .task {
                                     DispatchQueue.global().async {
                                         JXNetworkService.shared.loadImageWithUrl(urlString: appDetailData.artworkUrl60)
-                                            .receive(on: queue).sink { response in
+                                            .sink { response in
                                                 
                                             } receiveValue: { image in
                                                 cacheImage = image
