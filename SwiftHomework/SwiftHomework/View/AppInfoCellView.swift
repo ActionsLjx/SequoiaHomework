@@ -27,10 +27,21 @@ struct AppInfoCellView: View {
                                 .task {
                                     DispatchQueue.global().async {
                                         JXNetworkService.shared.loadImageWithUrl(urlString: appDetailData.artworkUrl60)
+                                            .handleEvents(receiveSubscription: { _ in
+                                                
+                                            }, receiveOutput: { image in
+                                                
+                                            }, receiveCompletion: { error in
+                                                print(error)
+                                            }, receiveCancel: {
+                                                print("cancel")
+                                            })
                                             .sink { response in
                                                 
                                             } receiveValue: { image in
-                                                cacheImage = image
+                                                DispatchQueue.main.async {
+                                                    cacheImage = image
+                                                }
                                             }.store(in: &cancellable)
                                     }
                                 }
