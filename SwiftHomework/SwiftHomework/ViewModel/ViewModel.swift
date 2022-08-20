@@ -40,7 +40,7 @@ class ViewModel: ObservableObject {
     //返回false 为无更多数据
     func loadMore(){
         guard let appInfoList = self.allAppList else { return }
-        var nextCount = self.currentList.count + 2;
+        var nextCount = self.currentList.count + 10;
         nextCount = nextCount > totalCount ? totalCount : nextCount;
         if(nextCount == self.currentList.count){
             isNoMoreData = true

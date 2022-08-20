@@ -19,7 +19,8 @@ struct HomeView: View {
             ZStack {
                 RefreshableScrollView.init { done in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                      done()
+                        vm.refreshData()
+                        done()
                     }
                 } onLoadMore: { done in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
